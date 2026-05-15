@@ -193,6 +193,11 @@ void main_window::setup_search_menu() {
 void main_window::setup_tools_menu() {
     auto *tools_menu = menuBar()->addMenu("Tools");
 
+    const auto* action_spell_check = tools_menu->addAction("Check Spelling...");
+    connect(action_spell_check, &QAction::triggered, this, [this] {
+        highlighter->rehighlight();
+    });
+
     const auto *action_word_freq = tools_menu->addAction("Word Frequency...");
     connect(action_word_freq, &QAction::triggered, this, [this] {
         show_word_frequency();
