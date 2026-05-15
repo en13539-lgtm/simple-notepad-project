@@ -39,6 +39,33 @@ main_window::main_window() {
     connect(editor, &QTextEdit::textChanged, this, [this] {
         update_status_bar();
     });
+    editor->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(editor, &QWidget::customContextMenuRequested,
+            this, [this](const QPoint& pos) {
+
+                auto* menu = editor->createStandardContextMenu();
+                auto cursor = editor->cursorForPosition(pos);
+                cursor.select(QTextCursor::WordUnderCursor);
+                const QString selected_word = cursor.selectedText();
+                std::string normalized = selected_word.toLower().toStdString();
+                if (!selected_word.isEmpty() && !checker.is_correct(normalized)) {
+                    menu->addSeparator();
+                    const auto suggestions = checker.suggest(normalized);
+                    for (const auto& suggestion : suggestions) {
+                        auto* action =
+                                menu->addAction(QString::fromStdString(suggestion));
+
+                        connect(action, &QAction::triggered,
+                                this, [this, cursor, suggestion] () mutable {
+
+                                    auto c = cursor;
+                                    c.insertText(QString::fromStdString(suggestion));
+                        });
+                    }
+                }
+                menu->exec(editor->mapToGlobal(pos));
+                delete menu;
+            });
 
     transforms.push_back(std::make_unique<uppercase_transform>());
     transforms.push_back(std::make_unique<lowercase_transform>());
