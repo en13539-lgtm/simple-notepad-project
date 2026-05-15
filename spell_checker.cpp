@@ -22,3 +22,18 @@ spell_checker::spell_checker() {
 bool spell_checker::is_correct(const std::string &word) const {
     return dictionary.contains(word);
 }
+
+std::vector<std::string>
+spell_checker::suggest(const std::string& word) const
+{
+    std::vector<std::string> suggestions;
+    for (const auto& candidate : dictionary) {
+        if (candidate.starts_with(word[0])) {
+            suggestions.push_back(candidate);
+        }
+        if (suggestions.size() >= 5) {
+            break;
+        }
+    }
+    return suggestions;
+}
