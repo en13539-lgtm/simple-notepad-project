@@ -78,6 +78,7 @@ main_window::main_window() {
     setup_file_menu();
     setup_edit_menu();
     setup_format_menu();
+    setup_view_menu();
     setup_format_toolbar();
     setup_search_menu();
     setup_tools_menu();
@@ -496,4 +497,34 @@ void main_window::show_word_frequency() {
     ui.frequency_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
     dialog->exec();
+}
+
+void main_window::setup_view_menu()
+{
+    auto* view_menu = menuBar()->addMenu("View");
+    auto* action_zoom_in = view_menu->addAction("Zoom In");
+    action_zoom_in->setShortcut(QKeySequence("Ctrl++"));
+    connect(action_zoom_in, &QAction::triggered, this, [this] {
+        editor->zoomIn();
+        ++zoom_level;
+    });
+
+    auto* action_zoom_out = view_menu->addAction("Zoom Out");
+    action_zoom_out->setShortcut(QKeySequence("Ctrl+-"));
+    connect(action_zoom_out, &QAction::triggered, this, [this] {
+        editor->zoomOut();
+        --zoom_level;
+    });
+
+    auto* action_reset_zoom = view_menu->addAction("Reset Zoom");
+    action_reset_zoom->setShortcut(QKeySequence("Ctrl+0"));
+    connect(action_reset_zoom, &QAction::triggered, this, [this] {
+        if (zoom_level > 0) {
+            editor->zoomOut(zoom_level);
+        } else if (zoom_level < 0) {
+            editor->zoomIn(-zoom_level);
+        }
+
+        zoom_level = 0;
+    });
 }

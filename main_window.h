@@ -26,6 +26,7 @@ public:
 private:
     spell_checker checker;
     spell_checker_highlighter *highlighter = nullptr;
+    int zoom_level = 0;
 
     void setup_file_menu();
 
@@ -38,6 +39,7 @@ private:
     void setup_search_menu();
 
     void setup_tools_menu();
+    void setup_view_menu();
 
     void open_file();
 
