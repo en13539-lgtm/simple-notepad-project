@@ -22,6 +22,7 @@
 #include <QTextStream>
 #include <QToolBar>
 #include <QFontDialog>
+#include <QColorDialog>
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -186,6 +187,22 @@ void main_window::setup_format_menu() {
             auto c = editor->textCursor();
             c.clearSelection();
             editor->setTextCursor(c);
+        }
+    });
+    auto* action_text_color = format_menu->addAction("Text Color...");
+    connect(action_text_color, &QAction::triggered, this, [this] {
+        const QColor color = QColorDialog::getColor(editor->textColor(), this);
+
+        if (!color.isValid()) {
+            return;
+        }
+        QTextCharFormat fmt;
+        fmt.setForeground(color);
+        auto cursor = editor->textCursor();
+        if (cursor.hasSelection()) {
+            cursor.mergeCharFormat(fmt);
+        } else {
+            editor->mergeCurrentCharFormat(fmt);
         }
     });
 
