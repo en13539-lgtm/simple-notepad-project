@@ -21,6 +21,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 #include <QToolBar>
+#include <QFontDialog>
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -41,9 +42,9 @@ main_window::main_window() {
     });
     editor->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(editor, &QWidget::customContextMenuRequested,
-            this, [this](const QPoint& pos) {
+            this, [this](const QPoint &pos) {
 
-                auto* menu = editor->createStandardContextMenu();
+                auto *menu = editor->createStandardContextMenu();
                 auto cursor = editor->cursorForPosition(pos);
                 cursor.select(QTextCursor::WordUnderCursor);
                 const QString selected_word = cursor.selectedText();
@@ -51,16 +52,16 @@ main_window::main_window() {
                 if (!selected_word.isEmpty() && !checker.is_correct(normalized)) {
                     menu->addSeparator();
                     const auto suggestions = checker.suggest(normalized);
-                    for (const auto& suggestion : suggestions) {
-                        auto* action =
+                    for (const auto &suggestion: suggestions) {
+                        auto *action =
                                 menu->addAction(QString::fromStdString(suggestion));
 
                         connect(action, &QAction::triggered,
-                                this, [this, cursor, suggestion] () mutable {
+                                this, [this, cursor, suggestion]() mutable {
 
                                     auto c = cursor;
                                     c.insertText(QString::fromStdString(suggestion));
-                        });
+                                });
                     }
                 }
                 menu->exec(editor->mapToGlobal(pos));
@@ -166,6 +167,28 @@ void main_window::setup_format_menu() {
             apply_transform(*transform);
         });
     }
+
+    auto *action_font = format_menu->addAction("Font...");
+    connect(action_font, &QAction::triggered, this, [this] {
+        bool ok = false;
+        const QFont font =
+                QFontDialog::getFont(&ok, editor->currentFont(), this);
+
+        if (!ok) {
+            return;
+        }
+        auto cursor = editor->textCursor();
+        if (cursor.hasSelection()) {
+            editor->setCurrentFont(font);
+        } else {
+            editor->selectAll();
+            editor->setCurrentFont(font);
+            auto c = editor->textCursor();
+            c.clearSelection();
+            editor->setTextCursor(c);
+        }
+    });
+
 }
 
 void main_window::setup_format_toolbar() {
@@ -220,7 +243,7 @@ void main_window::setup_search_menu() {
 void main_window::setup_tools_menu() {
     auto *tools_menu = menuBar()->addMenu("Tools");
 
-    const auto* action_spell_check = tools_menu->addAction("Check Spelling...");
+    const auto *action_spell_check = tools_menu->addAction("Check Spelling...");
     connect(action_spell_check, &QAction::triggered, this, [this] {
         highlighter->rehighlight();
     });
