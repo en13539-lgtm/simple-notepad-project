@@ -10,6 +10,7 @@
 #include <QString>
 #include <QTextDocument>
 #include <QTextEdit>
+#include <QMenu>
 #include <memory>
 #include <vector>
 
@@ -60,6 +61,13 @@ private:
 
     QDialog *find_replace_dlg{nullptr};
     std::unique_ptr<Ui::find_replace_dialog> find_replace_ui;
+
+    QMenu *recent_files_menu;
+    QStringList recent_files;
+    static constexpr int max_recent_files = 5;
+    void update_recent_files_menu();
+    void add_recent_file(const QString &file_name);
+    void open_recent_file();
 };
 
 #endif // MAIN_WINDOW_H

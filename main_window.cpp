@@ -114,6 +114,9 @@ void main_window::setup_file_menu() {
         save_file_as();
     });
 
+    recent_files_menu = file_menu->addMenu("Recent Files");
+    update_recent_files_menu();
+
     file_menu->addSeparator();
 
     const auto *action_exit = file_menu->addAction("Exit");
@@ -319,6 +322,7 @@ void main_window::open_file() {
         editor->setPlainText(contents);
         current_file = path;
         update_title();
+        add_recent_file(path);
     } catch (const notepad_exception &ex) {
         QMessageBox::critical(this, "Error", ex.what());
     }
@@ -356,6 +360,7 @@ void main_window::save_file_as() {
     current_file = path;
     save_file();
     update_title();
+    add_recent_file(current_file);
 }
 
 void main_window::update_title() {
@@ -526,4 +531,50 @@ void main_window::setup_view_menu()
 
         zoom_level = 0;
     });
+}
+
+void main_window::add_recent_file(const QString &file_name)
+{
+    recent_files.removeAll(file_name);
+    recent_files.prepend(file_name);
+
+    while (recent_files.size() > max_recent_files) {
+        recent_files.removeLast();
+    }
+    update_recent_files_menu();
+}
+
+void main_window::update_recent_files_menu()
+{
+    recent_files_menu->clear();
+    for (const QString &file : recent_files) {
+        QAction *action = recent_files_menu->addAction(file);
+
+        connect(action, &QAction::triggered,
+                this, &main_window::open_recent_file);
+    }
+}
+
+void main_window::open_recent_file()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action) {
+        return;
+    }
+    const QString path = action->text();
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        recent_files.removeAll(path);
+
+        update_recent_files_menu();
+        return;
+    }
+
+    QTextStream in(&file);
+    editor->setPlainText(in.readAll());
+
+    current_file = path;
+    update_title();
+
+    add_recent_file(path);
 }
