@@ -29,40 +29,29 @@ private:
     int zoom_level = 0;
 
     void setup_file_menu();
-
     void setup_edit_menu();
-
     void setup_format_menu();
-
     void setup_format_toolbar();
-
     void setup_search_menu();
-
     void setup_tools_menu();
     void setup_view_menu();
 
     void open_file();
-
     void save_file();
-
     void save_file_as();
 
     void update_title();
-
     void update_status_bar() const;
 
     void apply_transform(const text_transform &transform) const;
 
     void show_find_replace_dialog();
-
     void find_next(const QString &term, QTextDocument::FindFlags flags = QTextDocument::FindFlags()) const;
-
     void replace_current(const QString &term, const QString &replacement,
                          QTextDocument::FindFlags flags = QTextDocument::FindFlags()) const;
 
     void replace_all(const QString &term, const QString &replacement,
                      QTextDocument::FindFlags flags = QTextDocument::FindFlags()) const;
-
     void show_word_frequency();
 
     QTextEdit *editor{nullptr};
