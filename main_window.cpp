@@ -205,7 +205,13 @@ void main_window::setup_format_menu() {
         if (cursor.hasSelection()) {
             cursor.mergeCharFormat(fmt);
         } else {
-            editor->mergeCurrentCharFormat(fmt);
+            editor->selectAll();
+
+            auto all_cursor = editor->textCursor();
+            all_cursor.mergeCharFormat(fmt);
+
+            all_cursor.clearSelection();
+            editor->setTextCursor(all_cursor);
         }
     });
 
@@ -528,7 +534,6 @@ void main_window::setup_view_menu()
         } else if (zoom_level < 0) {
             editor->zoomIn(-zoom_level);
         }
-
         zoom_level = 0;
     });
 }
@@ -565,7 +570,6 @@ void main_window::open_recent_file()
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         recent_files.removeAll(path);
-
         update_recent_files_menu();
         return;
     }
